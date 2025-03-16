@@ -1,0 +1,11 @@
+apiVersion: v1                # Версия API для PersistentVolumeClaim.
+kind: PersistentVolumeClaim   # Тип ресурса — PVC для запроса постоянного хранилища.
+metadata:                     # Метаданные PVC.
+  name: postgres-pvc          # Имя PVC, используется для ссылки в Deployment.
+  namespace: app-namespace    # Указывает, что PVC создается в namespace "app-namespace".
+spec:                         # Спецификация PVC.
+  resources:                  # Запрашиваемые ресурсы.
+    requests:                 # Минимальные требования к хранилищу.
+      storage: 5Gi            # Запрашивает 5 гибибайт хранилища.
+  accessModes:                # Режимы доступа к хранилищу.
+    - ReadWriteOnce           # Доступ на чтение и запись для одного узла.

@@ -1,0 +1,52 @@
+apiVersion: apps/v1                         # Указывает версию API для этого объекта.
+kind: Deployment                            # Определяет тип ресурса — Deployment для управления набором подов.
+metadata:                                   # Секция метаданных, содержит идентификационные данные объекта.
+  name: postgres-deployment                 # Имя Deployment, используется для обращения к нему.
+  namespace: app-namespace                  # Указывает, что Deployment создается в namespace "app-namespace".
+spec:                                       # Секция спецификации, описывает желаемое состояние Deployment.
+  replicas: 1                               # Количество реплик подов; 1 — это один экземпляр PostgreSQL.
+  selector:                                 # Определяет, как Deployment выбирает поды для управления.
+    matchLabels:                            # Указывает метки для выбора подов.
+      components: postgres                  # Соответствует подам с меткой 'components: postgres'.
+  template:                                 # Шаблон для создания подов.
+    metadata:                               # Метаданные шаблона подов.
+      labels:                               # Метки, которые будут присвоены подам.
+        components: postgres                # Метка для идентификации подов как части PostgreSQL.
+    spec:                                   # Спецификация содержимого подов.
+      containers:                           # Список контейнеров в поде.
+        - name: postgres                    # Имя контейнера, используется в логах или командах.
+          image: postgres:16.0              # Образ Docker для контейнера, здесь PostgreSQL версии 16.0.
+          ports:                            # Порты, которые открывает контейнер.
+            - containerPort: 5432           # Порт 5432 — стандартный порт PostgreSQL для клиентских подключений.
+          env:                              # Переменные окружения для настройки контейнера PostgreSQL.
+            - name: POSTGRES_DB             # Имя базы данных, создаваемой при старте контейнера.
+              valueFrom:                    # Значение берется из внешнего источника.
+                secretKeyRef:               # Ссылка на секрет для безопасного хранения данных.
+                  name: postgres-secret     # Имя секрета, содержащего данные.
+                  key: POSTGRES_DB          # Ключ в секрете, где хранится имя базы данных.
+            - name: POSTGRES_USER           # Имя пользователя для аутентификации в PostgreSQL.
+              valueFrom:                    # Значение берется из секрета.
+                secretKeyRef:               # Ссылка на секрет.
+                  name: postgres-secret     # Имя секрета.
+                  key: POSTGRES_USER        # Ключ в секрете, где хранится имя пользователя.
+            - name: POSTGRES_PASSWORD       # Пароль для аутентификации в PostgreSQL.
+              valueFrom:                    # Значение берется из секрета.
+                secretKeyRef:               # Ссылка на секрет.
+                  name: postgres-secret     # Имя секрета.
+                  key: POSTGRES_PASSWORD    # Ключ в секрете, где хранится пароль.
+          resources:                        # Ограничения ресурсов для контейнера.
+            limits:                         # Максимальные ресурсы, которые может использовать контейнер.
+              memory: "500Mi"               # Ограничивает память до 500 мебибайт.
+              cpu: "1000m"                  # Ограничивает CPU до 1 ядра (1000 миллиCPU).
+          volumeMounts:                     # Точки монтирования томов в контейнере.
+            - name: postgres-data           # Имя тома для хранения данных PostgreSQL.
+              mountPath: /var/lib/postgresql/data     # Путь, где PostgreSQL хранит свои данные.
+            - name: init-script                       # Имя тома для скриптов инициализации.
+              mountPath: /docker-entrypoint-initdb.d  # Путь, где PostgreSQL ищет скрипты при запуске.
+      volumes:                              # Определение томов, доступных поду.
+        - name: postgres-data               # Имя тома для постоянного хранения данных.
+          persistentVolumeClaim:            # Ссылка на PersistentVolumeClaim для выделения хранилища.
+            claimName: postgres-pvc         # Имя PVC, определенного ниже.
+        - name: init-script                 # Имя тома для скриптов инициализации.
+          configMap:                        # Использует ConfigMap для предоставления содержимого.
+            name: postgres-init-script      # Имя ConfigMap, определенного ниже.

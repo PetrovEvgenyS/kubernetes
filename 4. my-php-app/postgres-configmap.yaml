@@ -1,0 +1,13 @@
+apiVersion: v1                                   # Версия API для ConfigMap.
+kind: ConfigMap                                  # Тип ресурса — ConfigMap для хранения конфигурационных данных.
+metadata:                                        # Метаданные ConfigMap.
+  name: postgres-init-script                     # Имя ConfigMap, используется в Deployment.
+  namespace: app-namespace                       # Указывает, что ConfigMap создается в namespace "app-namespace".
+data:                                            # Данные ConfigMap.
+  init.sql: |                                    # Имя файла и SQL-скрипт для инициализации.
+    CREATE TABLE users (                         # Создает таблицу 'users' в базе данных.
+        id SERIAL PRIMARY KEY,                   # Поле 'id' — автоинкрементный первичный ключ.
+        username VARCHAR(50) NOT NULL,           # Поле 'username' — строка до 50 символов, не null.
+        email VARCHAR(100) NOT NULL UNIQUE,      # Поле 'email' — строка до 100 символов, уникальное, не null.
+        password VARCHAR(255) NOT NULL           # Поле 'password' — строка до 255 символов, не null.
+    );

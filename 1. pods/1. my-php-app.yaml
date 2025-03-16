@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
     - name: my-php-app
-      image: petrovevgeny/my-php-app:v1
+      image: petrovevgeny/my-php-app:v1.0
       ports:
         - containerPort: 80
       resources:

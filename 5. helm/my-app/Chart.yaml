@@ -1,0 +1,9 @@
+apiVersion: v2
+name: my-app
+description: A Helm chart for my PHP application
+type: application
+version: 0.1.0
+appVersion: "2.0"
+maintainers:
+  - name: Evgeny
+    email: Example@ya.ru

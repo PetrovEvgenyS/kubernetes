@@ -1,0 +1,48 @@
+# Глобальное имя для всех объектов
+name: app
+
+# Namespace settings
+namespace:
+  name: app-namespace
+  create: true
+
+# Deployment settings
+replicaCount: 3
+image:
+  repository: petrovevgeny/my-php-app
+  tag: "v2.0"
+  pullPolicy: IfNotPresent
+
+containers:
+  name: my-php-app
+
+resources:
+  limits:
+    cpu: "500m"      # 500 миллиядер, то есть 0.5 CPU
+    memory: "256Mi"  # 256 мебибайт
+  requests:
+    cpu: "200m"      # 200 миллиядер, то есть 0.2 CPU
+    memory: "128Mi"  # 128 мебибайт
+
+labels:
+  env: prod
+  app: main
+  owner: Evgeny
+
+# Service settings
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 80
+
+# Ingress settings
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/add-base-url: "true"
+  hosts:
+    - host: app.lan
+      paths:
+        - path: /
+          pathType: Prefix

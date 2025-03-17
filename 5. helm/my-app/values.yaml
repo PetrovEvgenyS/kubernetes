@@ -10,7 +10,7 @@ namespace:
 replicaCount: 3
 image:
   repository: petrovevgeny/my-php-app
-  tag: "v2.0"
+  tag: "v1.0"
   pullPolicy: IfNotPresent
 
 containers:

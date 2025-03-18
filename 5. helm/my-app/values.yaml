@@ -1,5 +1,6 @@
 # Глобальное имя для всех объектов
-name: app
+name: "app" # для app
+namePostgres: "postgres"  # для postgres
 
 # Namespace settings
 namespace:
@@ -10,7 +11,7 @@ namespace:
 replicaCount: 3
 image:
   repository: petrovevgeny/my-php-app
-  tag: "v1.0"
+  tag: "v2.0"
   pullPolicy: IfNotPresent
 
 containers:
@@ -46,3 +47,48 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+
+# Postgres settings
+postgres:
+  enabled: true # Условия: каждый ресурс создается только если postgres.enabled: true.
+  replicaCount: 1
+  selector:
+    matchLabels:
+      components: postgres
+  containers:
+    name: postgres
+  image:
+    repository: postgres
+    tag: "16.0"
+    pullPolicy: IfNotPresent
+  containerPort: 5432
+  service:
+    type: ClusterIP
+    port: 5432
+  envs:
+    - POSTGRES_DB
+    - POSTGRES_USER
+    - POSTGRES_PASSWORD
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "500Mi"
+    requests:
+      cpu: "500m"
+      memory: "256Mi"
+  pvc:
+    storage: "5Gi"
+    accessMode: ReadWriteOnce
+  secret:
+    db: "demo"
+    user: "demo"
+    password: "demo"
+  initScript:
+    enabled: true
+    sql: |
+      CREATE TABLE users (
+          id SERIAL PRIMARY KEY,
+          username VARCHAR(50) NOT NULL,
+          email VARCHAR(100) NOT NULL UNIQUE,
+          password VARCHAR(255) NOT NULL
+      );

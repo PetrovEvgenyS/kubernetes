@@ -1,0 +1,51 @@
+{{- if .Values.postgres.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namePostgres }}-deployment
+  namespace: {{ .Values.namespace.name | quote }}
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.postgres.replicaCount }}
+  selector:
+    matchLabels:
+      components: {{ .Values.postgres.selector.matchLabels.components }}
+  template:
+    metadata:
+      labels:
+        {{- include "postgres.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.postgres.containers.name }}
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.postgres.containerPort }}
+              protocol: TCP
+          env:
+            {{- range .Values.postgres.envs }}
+            {{- $data := dict "name" $.Values.namePostgres "env" . }}
+            {{- include "env.template" $data | nindent 12 }}
+            {{- end }}  
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+              {{- if not .Values.postgres.initScript.enabled }}
+              readOnly: true
+              {{- end }}
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.namePostgres }}-pvc
+        - name: init-script
+          configMap:
+            name: {{ .Values.namePostgres }}-init-script
+            {{- if not .Values.postgres.initScript.enabled }}
+            optional: true
+            {{- end }}
+{{- end -}}

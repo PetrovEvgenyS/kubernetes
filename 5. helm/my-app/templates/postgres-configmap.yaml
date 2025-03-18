@@ -1,0 +1,10 @@
+{{- if and .Values.postgres.enabled .Values.postgres.initScript.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.namePostgres }}-init-script
+  namespace: {{ .Values.namespace.name | quote }}
+data:
+  init.sql: |-
+{{ .Values.postgres.initScript.sql | indent 4 }}
+{{- end -}}

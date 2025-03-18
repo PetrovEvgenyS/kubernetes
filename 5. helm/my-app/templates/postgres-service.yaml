@@ -1,0 +1,15 @@
+{{- if .Values.postgres.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.namePostgres }}-service
+  namespace: {{ .Values.namespace.name | quote }}
+spec:
+  type: {{ .Values.postgres.service.type }}
+  ports:
+    - port: {{ .Values.postgres.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.postgres.containerPort }}
+  selector:
+    components: {{ .Values.postgres.selector.matchLabels.components }}
+{{- end -}}

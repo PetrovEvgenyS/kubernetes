@@ -1,0 +1,13 @@
+{{- if .Values.postgres.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.namePostgres }}-pvc
+  namespace: {{ .Values.namespace.name | quote }}
+spec:
+  resources:
+    requests:
+      storage: {{ .Values.postgres.pvc.storage | quote }}
+  accessModes:
+    - {{ .Values.postgres.pvc.accessMode }}
+{{- end -}}

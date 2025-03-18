@@ -1,7 +1,7 @@
 apiVersion: v1              # Версия API для ресурса Service.
 kind: Service               # Тип ресурса — Service для обеспечения доступа к подам.
 metadata:                   # Метаданные сервиса.
-  name: postgres-clusterip  # Имя сервиса, используется для обращения внутри кластера.
+  name: postgres-service    # Имя сервиса, используется для обращения внутри кластера.
   namespace: app-namespace  # Указывает, что Service создается в namespace "app-namespace".
 spec:                       # Спецификация сервиса.
   type: ClusterIP           # Тип сервиса — ClusterIP, доступен только внутри кластера.

@@ -79,10 +79,6 @@ postgres:
   pvc:
     storage: "5Gi"
     accessMode: ReadWriteOnce
-  secret:
-    db: "demo"
-    user: "demo"
-    password: "demo"
   initScript:
     enabled: true
     sql: |

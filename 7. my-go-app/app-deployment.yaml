@@ -1,16 +1,16 @@
 apiVersion: apps/v1   # Определяет API-версию, используемую для создания Deployment
 kind: Deployment      # Указывает, что создается объект типа Deployment
 metadata:             # Метаданные для Deployment
-  name: app-deployment      # Имя развертывания (Deployment)
+  name: app-deployment      # Имя объекта Deployment
   namespace: app-namespace  # Указывает, что Deployment создается в namespace "app-namespace".
-  labels:           # Метки, которые можно использовать для группировки и фильтрации ресурсов
+  labels:           # Метки, которые можно использовать для группировки и фильтрации ресурсов (метки для объекта Deployment).
     env: prod       # Метка окружения, указывает, что это продакшн
     app: main       # Метка, идентифицирующая приложение
 spec:               # Основная спецификация Deployment
-  replicas: 3       # Количество реплик (подов), которые должны быть запущены
+  replicas: 4       # Количество реплик (подов), которые должны быть запущены
   selector:         # Указывает, какие поды принадлежат этому Deployment
     matchLabels:    # Определяет соответствие меткам
-      app: main     # Ищет поды с меткой app: main
+      app: main     # Ищет поды с меткой "app: main"
   template:         # Шаблон для создаваемых подов
     metadata:       # Метаданные для подов
       labels:       # Метки, которые будут назначены подам

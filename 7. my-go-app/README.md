@@ -1,4 +1,4 @@
-# my-go-app Kubernetes Deployment
+# my-go-app
 
 ## Описание
 
@@ -57,3 +57,7 @@ kubectl delete -f app-namespace.yaml
 
 - Для работы Ingress необходим установленный Ingress Controller (например, NGINX).
 - Все ресурсы создаются в namespace `app-namespace`.
+
+## my-go-app-chart
+
+Helm-чарт для развертывания Go-приложения в Kubernetes.

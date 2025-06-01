@@ -1,0 +1,40 @@
+namespace:
+  name: app-namespace
+
+deployment:
+  name: app-deployment
+  labels:
+    env: prod
+    app: main
+  replicas: 4
+  container:
+    name: my-go-app
+    image: petrovevgeny/my-go-app
+    tag: v1.0.0
+    port: 8080
+
+service:
+  name: app-service
+  type: ClusterIP
+  port: 3000
+  targetPort: 8080
+
+ingress:
+  name: app-ingress
+  hosts:
+    - host: app.lan
+      paths:
+        - path: /
+          pathType: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/add-base-url: "true"
+  className: nginx
+  servicePort: 3000
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi

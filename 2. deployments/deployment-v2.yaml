@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-web-deployment
+  labels:
+    env: prod
+    app: main
+    owner: Evgeny
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: main
+  template:
+    metadata:
+      labels:
+        app: main
+    spec:
+      containers:
+        - name: my-php-app
+          image: petrovevgeny/my-php-app:v1.0
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-single-service
+spec:
+  type: NodePort
+  selector:
+    app: main
+  ports:
+    - name: app-listener
+      protocol: TCP
+      port: 3000
+      targetPort: 80
+      nodePort: 31200
+
+---
+apiVersion: autoscaling/v2         # API-версия HPA (HorizontalPodAutoscaler)
+kind: HorizontalPodAutoscaler      # Тип ресурса: горизонтальное автоскалирование подов
+metadata:                          # Метаданные HPA
+  name: my-web-deployment-hpa      # Имя HPA-ресурса
+spec:                              # Спецификация автоскейлинга
+  scaleTargetRef:                  # Целевой объект, который будет масштабироваться
+    apiVersion: apps/v1            # API-версия целевого Deployment
+    kind: Deployment               # Тип целевого ресурса
+    name: my-web-deployment        # Имя целевого Deployment
+  minReplicas: 3                   # Минимальное количество реплик (не опускаемся ниже 3)
+  maxReplicas: 10                  # Максимальное количество реплик (верхний предел)
+  metrics:                         # Метрики, по которым HPA принимает решение о масштабировании
+    - type: Resource               # Используем ресурсную метрику
+      resource:
+        name: cpu                  # Масштабирование по утилизации CPU
+        target:
+          type: Utilization        # Целевое значение в процентах от requests
+          averageUtilization: 70   # Целевая средняя утилизация CPU: 70%
+    - type: Resource               # Используем вторую ресурсную метрику
+      resource:
+        name: memory               # Масштабирование по утилизации памяти
+        target:
+          type: Utilization        # Целевое значение в процентах от requests
+          averageUtilization: 80   # Целевая средняя утилизация памяти: 80%

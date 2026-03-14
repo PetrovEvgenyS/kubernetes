@@ -34,6 +34,8 @@ update_system() {
     if [ "$PKG_MANAGER" = "apt" ]; then
         apt update -y
     else
+        # Отключить репозитории:
+        #dnf config-manager --set-disabled extras crb
         dnf makecache -y
     fi
 }
@@ -57,13 +59,17 @@ disable_selinux() {
         return
     fi
 
-    magentaprint "Отключаем SELinux..."
-    if [ -f /etc/selinux/config ]; then
-        sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config  
-        magentaprint "SELinux отключен. Перезагрузите систему для применения изменений."
-    else
+    if [ ! -f /etc/selinux/config ]; then
         magentaprint "Файл конфигурации SELinux не найден."
+        return
     fi
+    if grep -q '^SELINUX=permissive' /etc/selinux/config; then
+        magentaprint "SELinux уже в режиме permissive. Пропускаем."
+        return
+    fi
+    magentaprint "Отключаем SELinux..."
+    sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config
+    magentaprint "SELinux отключен. Перезагрузите систему для применения изменений."
 # Enforcing (Принудительный): Политики SELinux применяются, и доступ, который не разрешен политиками, блокируется.
 # Permissive (Разрешающий): Политики SELinux не блокируют доступ, но все нарушения регистрируются в логах. Этот режим полезен для отладки и настройки.
 # Disabled (Отключен): SELinux полностью отключен.
@@ -91,6 +97,10 @@ EOF
 
 ### Функция установки kubectl ###
 install_kubectl() {
+    if command -v kubectl &>/dev/null; then
+        magentaprint "kubectl уже установлен: $(kubectl version --client)"
+        return
+    fi
     magentaprint "Устанавливаем kubectl..."
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
@@ -101,9 +111,13 @@ install_kubectl() {
 
 ### Функция установки Minikube ###
 install_minikube() {
+    if command -v minikube &>/dev/null; then
+        magentaprint "minikube уже установлен: $(minikube version)"
+        return
+    fi
     magentaprint "Устанавливаем Minikube..."
     curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-    install minikube /usr/local/bin/minikube
+    install -o root -g root -m 0755 minikube /usr/local/bin/minikube
     rm -f minikube
     minikube version
 }
@@ -119,9 +133,7 @@ main() {
     configure_sysctl
     install_kubectl
     install_minikube
-    magentaprint "Установка завершена."
-    magentaprint "Запустите Minikube вручную, например:"
-    magentaprint "minikube start --driver=docker"
+    magentaprint "kubectl и minikube установлены. Установка завершена."
 }
 
 ### Запуск основной функции ###

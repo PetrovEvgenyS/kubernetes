@@ -5,8 +5,8 @@
 ## Состав
 
 - **ingress-v1.yaml** — Deployment, Service (ClusterIP) и Ingress для маршрутизации внешнего трафика через контроллер Ingress (nginx).
-- **service-v1-NodePort.yaml** — Deployment и Service с типом NodePort для доступа к приложению через порт узла кластера.
-- **service-v2-ClusterIP.yaml** — Deployment и Service с типом ClusterIP (доступ только внутри кластера).
+- **service-v1-ClusterIP.yaml** — Deployment и Service с типом ClusterIP (доступ только внутри кластера).
+- **service-v2-NodePort.yaml** — Deployment и Service с типом NodePort для доступа к приложению через порт узла кластера.
 - **service-v3-Loadbalancer.yaml** — Deployment и Service с типом LoadBalancer (создаёт внешний балансировщик нагрузки, если поддерживается кластером).
 
 ## Кратко о типах сервисов
@@ -20,9 +20,9 @@
 
 1. Примените нужный манифест:
    ```sh
-   kubectl apply -f service-v1-NodePort.yaml
+   kubectl apply -f service-v1-ClusterIP.yaml
    # или
-   kubectl apply -f service-v2-ClusterIP.yaml
+   kubectl apply -f service-v2-NodePort.yaml
    # или
    kubectl apply -f service-v3-Loadbalancer.yaml
    # или
